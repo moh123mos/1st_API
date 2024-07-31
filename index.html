@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mall</title>
+  </head>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    img {
+      width: 100%;
+    }
+    body {
+      ::-webkit-scrollbar {
+        width: 10px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #404e59;
+        border-radius: 20px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+      background-color: #1d2a35;
+      background-repeat: no-repeat;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      .container {
+        padding-top: 30px;
+        color: #fff;
+        .sidebar {
+          width: 160px;
+          height: 100%;
+          margin-top: -30px;
+          padding: 10px;
+          position: fixed;
+          text-align: left;
+          background-color: #15202b;
+          overflow-y: scroll;
+          h2 {
+            margin-bottom: 20px;
+          }
+          .category {
+            text-transform: capitalize;
+            font-weight: bold;
+            letter-spacing: 1.3px;
+            text-align: center;
+            width: 80%;
+            cursor: pointer;
+            color: #ccc;
+            margin-bottom: 10px;
+            padding-bottom: 3px;
+            border-radius: 10px;
+            &:hover {
+              background-color: #38444d;
+            }
+            &.active {
+              background-color: #04aa6d;
+              color: #fff;
+            }
+          }
+        }
+        .main {
+          margin-left: 170px;
+          padding: 10px;
+
+          .posts {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            .title-category {
+              width: 12000px;
+              text-align: center;
+              margin-bottom: 20px;
+              font-size: 30px;
+            }
+            .post {
+              width: 350px;
+              padding: 10px;
+              border: 1px solid #fff;
+              border-radius: 10px;
+              line-height: 1.7;
+              box-shadow: 0px 0px 10px #ffffff98;
+              margin-bottom: 10px;
+              h3 {
+                font-weight: bold;
+                font-size: 24px;
+                text-align: center;
+                padding-bottom: 15px;
+              }
+              .img {
+                width: 100%;
+                text-align: center;
+                img {
+                  width: 200px;
+                  height: 400px;
+                }
+              }
+            }
+          }
+        }
+        @media screen and (max-width: 667px) {
+          .sidebar {
+            width: 100%;
+            height: auto;
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            text-align: center;
+            & > h2 {
+              width: 900px;
+            }
+            .category {
+              max-width: fit-content;
+              padding: 3px;
+            }
+          }
+          div.main {
+            margin-left: 0;
+          }
+        }
+      }
+    }
+  </style>
+  <body>
+    <div class="container">
+      <div class="sidebar">
+        <h2>Categories</h2>
+      </div>
+      <div class="main">
+        <div class="posts"></div>
+      </div>
+    </div>
+  </body>
+  <script>
+    let sidebar = document.querySelector(".sidebar");
+    let postsContainer = document.querySelector(".posts");
+    let main = document.querySelector(".main");
+    function getCategory() {
+      let response = new XMLHttpRequest();
+      response.open("GET", "https://dummyjson.com/products");
+      response.send();
+      response.onload = () => {
+        if (response.status >= 200 && response.status < 300) {
+          let products = JSON.parse(response.responseText).products;
+          console.log(products);
+          let set = new Set();
+          for (prod of products) {
+            set.add(prod.category);
+          }
+          let firstFlag = true;
+          for (prod of set) {
+            if (firstFlag) {
+              sidebar.innerHTML += `<div class="category active">${prod}</div>`;
+              firstFlag = false;
+            } else sidebar.innerHTML += `<div class="category">${prod}</div>`;
+          }
+          let categories = document.querySelectorAll(".category");
+          categories.forEach((e) => {
+            let cate = e.innerHTML;
+
+            if (e.className.match("active")) {
+              postsContainer.innerHTML += `<h2 class="title-category">${
+                cate[0].toUpperCase() + cate.slice(1)
+              }  Products</h2>`;
+              for (prod of products) {
+                if (prod.category === cate) {
+                  postsContainer.innerHTML += `<div class="post"><h3 class="title">${prod.title}</h3><div class="desc">${prod.description}</div> <div class="img"> <img src="${prod.images[0]}" alt=""></div></div>`;
+                }
+              }
+            }
+            e.addEventListener("click", (e) => {
+              categories.forEach((el) => {
+                el.classList.remove("active");
+              });
+              e.target.classList.add("active");
+              postsContainer.innerHTML = "";
+              postsContainer.innerHTML += `<h2 class="title-category">${
+                cate[0].toUpperCase() + cate.slice(1)
+              }  Products</h2>`;
+              for (prod of products) {
+                if (prod.category === cate) {
+                  postsContainer.innerHTML += `<div class="post"><h3 class="title">${prod.title}</h3><div class="desc">${prod.description}</div> <div class="img"> <img src="${prod.images[0]}" alt=""></div></div>`;
+                }
+              }
+            });
+          });
+        }
+      };
+    }
+    getCategory();
+    //Next Septs:
+    //[1] improve getCategory
+    //[2] apply DRY concept
+    //add some ideas if possible :)
+  </script>
+</html>
